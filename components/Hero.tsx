@@ -6,7 +6,7 @@ const Hero: React.FC<{ isSignedIn: boolean; onSignInClick: () => void }> = ({ is
       className="relative bg-cover bg-center text-white"
       style={{ backgroundImage: "url('https://picsum.photos/id/1018/1600/900?grayscale&blur=2')" }}
     >
-      <div className="absolute inset-0 bg-black/60"></div>
+      <div className="absolute inset-0 bg-black/70"></div>
       <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-48 text-center">
         <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold tracking-tight">
           Discover Sikkim's<br/>

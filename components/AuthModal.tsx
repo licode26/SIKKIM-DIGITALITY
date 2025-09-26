@@ -1,19 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { XIcon, DevicePhoneMobileIcon, SpinnerIcon } from './Icons';
+import { supabase } from '../lib/supabase';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSignIn: (phone: string) => void;
 }
 
 type AuthStep = 'phone' | 'otp';
 
-const MOCK_OTP = '123456';
-
-const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
+const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<AuthStep>('phone');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+');
+  const [localPhoneNumber, setLocalPhoneNumber] = useState('');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -36,44 +35,76 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
   }, [isOpen, handleKeyDown]);
 
   useEffect(() => {
-    // Reset form when modal is opened or closed
     if (!isOpen) {
       setTimeout(() => {
         setStep('phone');
-        setPhoneNumber('');
+        setCountryCode('+');
+        setLocalPhoneNumber('');
         setOtp('');
         setError('');
         setIsLoading(false);
-      }, 300); // Delay reset to allow for closing animation
+      }, 300);
     }
   }, [isOpen]);
 
-  const handleSendOtp = (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    // Basic validation for phone number
-    if (!/^\d{10,}$/.test(phoneNumber.replace(/\s+/g, ''))) {
-      setError('Please enter a valid phone number.');
-      return;
+
+    if (countryCode.length <= 1 || !/^\+\d+$/.test(countryCode)) {
+        setError('Please enter a valid country code (e.g., +1).');
+        return;
+    }
+    
+    if (!/^\d{7,}$/.test(localPhoneNumber)) {
+        setError('Please enter a valid phone number.');
+        return;
     }
     
     setIsLoading(true);
-    // Simulate API call to send OTP
-    console.log(`Sending OTP to ${phoneNumber}. Mock OTP is ${MOCK_OTP}`);
-    setTimeout(() => {
-      setIsLoading(false);
+    const fullPhoneNumber = countryCode + localPhoneNumber;
+    
+    const { error } = await supabase.auth.signInWithOtp({
+      phone: fullPhoneNumber,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      console.error("Error sending OTP:", error.message);
+      if (error.message.includes("is not a valid phone number")) {
+         setError("Invalid phone number. For trial accounts, the number must be verified with the SMS provider.");
+      } else {
+         setError(`Could not send OTP. Please check the number and try again.`);
+      }
+    } else {
       setStep('otp');
-    }, 1500);
+    }
   };
   
-  const handleVerifyOtp = (e: React.FormEvent) => {
+  const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (otp === MOCK_OTP) {
-        console.log('OTP verified successfully.');
-        onSignIn(phoneNumber);
-    } else {
+    setIsLoading(true);
+    const fullPhoneNumber = countryCode + localPhoneNumber;
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: fullPhoneNumber,
+      token: otp,
+      type: 'sms',
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+        console.error("Error verifying OTP:", error.message);
         setError('Invalid OTP. Please try again.');
+    } else if (data.session) {
+        console.log('OTP verified successfully.');
+        // The onAuthStateChange listener in App.tsx will handle the rest.
+        onClose();
+    } else {
+        setError('Could not sign you in. Please try again.');
     }
   };
 
@@ -104,22 +135,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
                 <form onSubmit={handleSendOtp} className="space-y-6">
                     <div>
                         <label htmlFor="phone-number" className="block text-sm font-medium text-brand-text-secondary mb-2">
-                            Enter your mobile number to begin
+                            Enter your mobile number
                         </label>
-                        <div className="relative">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <DevicePhoneMobileIcon />
-                            </div>
+                        <div className="flex items-center space-x-2">
                             <input
-                                id="phone-number"
-                                type="tel"
-                                value={phoneNumber}
-                                onChange={(e) => setPhoneNumber(e.target.value)}
-                                placeholder="Phone Number"
-                                className="w-full bg-brand-dark border border-brand-light-gray rounded-lg py-3 pl-10 pr-4 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
+                                id="country-code"
+                                type="text"
+                                value={countryCode}
+                                onChange={(e) => {
+                                    let val = e.target.value;
+                                    if (!val.startsWith('+')) val = '+' + val.replace(/\D/g, '');
+                                    if (val.length > 4) val = val.slice(0, 4);
+                                    setCountryCode(val);
+                                }}
+                                placeholder="+1"
+                                className="w-1/4 bg-brand-dark border border-brand-light-gray rounded-lg py-3 px-3 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
                                 required
-                                aria-label="Phone Number"
+                                aria-label="Country Code"
                             />
+                            <div className="relative w-3/4">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <DevicePhoneMobileIcon />
+                                </div>
+                                <input
+                                    id="phone-number"
+                                    type="tel"
+                                    value={localPhoneNumber}
+                                    onChange={(e) => setLocalPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                                    placeholder="5551234567"
+                                    className="w-full bg-brand-dark border border-brand-light-gray rounded-lg py-3 pl-10 pr-4 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
+                                    required
+                                    aria-label="Phone Number"
+                                />
+                            </div>
                         </div>
                     </div>
                     {error && <p className="text-sm text-red-400 text-center">{error}</p>}
@@ -129,7 +177,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
                             disabled={isLoading}
                             className="w-full inline-flex justify-center items-center space-x-2 px-6 py-3 font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray focus:ring-brand-teal disabled:bg-brand-light-gray disabled:cursor-not-allowed"
                         >
-                            {isLoading ? <SpinnerIcon /> : <span>Send OTP via WhatsApp</span>}
+                            {isLoading ? <SpinnerIcon /> : <span>Send OTP</span>}
                         </button>
                     </div>
                 </form>
@@ -137,7 +185,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
                  <form onSubmit={handleVerifyOtp} className="space-y-6">
                     <div>
                          <p className="text-sm text-brand-text-secondary mb-2 text-center">
-                            Enter the 6-digit code sent to <br/> <span className="font-semibold text-brand-text">{phoneNumber}</span>
+                            Enter the 6-digit code sent to <br/> <span className="font-semibold text-brand-text">{countryCode} {localPhoneNumber}</span>
                         </p>
                         <input
                             type="text"
@@ -145,6 +193,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
                             onChange={(e) => setOtp(e.target.value)}
                             placeholder="_ _ _ _ _ _"
                             maxLength={6}
+                            autoComplete="one-time-code"
                             className="w-full bg-brand-dark border border-brand-light-gray rounded-lg py-3 px-4 text-brand-text placeholder-brand-text-secondary text-center text-2xl tracking-[0.5em] focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
                             required
                             aria-label="One-Time Password"
@@ -154,9 +203,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSignIn }) => {
                     <div>
                          <button
                             type="submit"
-                            className="w-full inline-flex justify-center items-center space-x-2 px-6 py-3 font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray focus:ring-brand-teal"
+                            disabled={isLoading}
+                            className="w-full inline-flex justify-center items-center space-x-2 px-6 py-3 font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray focus:ring-brand-teal disabled:bg-brand-light-gray"
                         >
-                            Verify & Continue
+                            {isLoading ? <SpinnerIcon /> : <span>Verify & Continue</span>}
                         </button>
                     </div>
                      <div className="text-center">

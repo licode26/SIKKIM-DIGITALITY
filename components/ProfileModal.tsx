@@ -5,13 +5,13 @@ interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (name: string, email: string) => void;
+  isSaving: boolean;
 }
 
-const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave }) => {
+const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, isSaving }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.key === 'Escape') {
@@ -36,7 +36,6 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave }) 
         setName('');
         setEmail('');
         setError('');
-        setIsLoading(false);
       }, 300);
     }
   }, [isOpen]);
@@ -54,12 +53,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave }) 
         return;
     }
     
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-        setIsLoading(false);
-        onSave(name, email);
-    }, 1000);
+    onSave(name, email);
   };
 
   if (!isOpen) {
@@ -77,6 +71,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave }) 
         </div>
 
         <div className="p-6 sm:p-8">
+            <p className="text-center text-brand-text-secondary text-sm mb-6">Welcome! Just a few more details to unlock your personalized experience.</p>
             <form onSubmit={handleSubmit} className="space-y-6">
                  <div>
                     <label htmlFor="full-name" className="block text-sm font-medium text-brand-text-secondary mb-2">
@@ -122,10 +117,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave }) 
                 <div>
                     <button
                         type="submit"
-                        disabled={isLoading}
+                        disabled={isSaving}
                         className="w-full inline-flex justify-center items-center space-x-2 px-6 py-3 font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-brand-gray focus:ring-brand-teal disabled:bg-brand-light-gray disabled:cursor-not-allowed"
                     >
-                        {isLoading ? <SpinnerIcon /> : <span>Save & Continue</span>}
+                        {isSaving ? <SpinnerIcon /> : <span>Save & Continue</span>}
                     </button>
                 </div>
             </form>
