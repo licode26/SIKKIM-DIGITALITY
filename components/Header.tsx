@@ -12,13 +12,40 @@ import {
   XIcon,
   UserIcon,
 } from './Icons';
+import type { Page } from '../App';
 
-const NavLink: React.FC<{ href: string; icon: React.ReactNode; children: React.ReactNode }> = ({ href, icon, children }) => (
-  <a href={href} className="flex items-center space-x-2 text-brand-text-secondary hover:text-brand-text transition-colors duration-200">
-    {icon}
-    <span className="text-sm font-medium">{children}</span>
-  </a>
-);
+interface NavButtonProps {
+  onClick: () => void;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+  isActive: boolean;
+  disabled?: boolean;
+}
+
+const NavButton: React.FC<NavButtonProps> = ({ onClick, icon, children, isActive, disabled }) => {
+  if (disabled) {
+    return (
+      <span className="flex items-center space-x-2 text-brand-text-secondary/50 cursor-not-allowed px-3 py-2 text-sm font-medium">
+        {icon}
+        <span>{children}</span>
+      </span>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+        isActive
+          ? 'bg-brand-gray text-white'
+          : 'text-brand-text-secondary hover:text-white hover:bg-brand-gray/50'
+      }`}
+    >
+      {icon}
+      <span>{children}</span>
+    </button>
+  );
+};
 
 interface HeaderProps {
   isSignedIn: boolean;
@@ -27,9 +54,11 @@ interface HeaderProps {
   onSignInClick: () => void;
   onSignOut: () => void;
   onSearchClick: () => void;
+  onNavigate: (page: Page) => void;
+  currentPage: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ isSignedIn, userName, userPhone, onSignInClick, onSignOut, onSearchClick }) => {
+const Header: React.FC<HeaderProps> = ({ isSignedIn, userName, userPhone, onSignInClick, onSignOut, onSearchClick, onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -48,13 +77,13 @@ const Header: React.FC<HeaderProps> = ({ isSignedIn, userName, userPhone, onSign
 
 
   const navItems = [
-    { href: '#', icon: <HomeIcon />, text: 'Home' },
-    { href: '#', icon: <CameraIcon />, text: 'Virtual Tours' },
-    { href: '#', icon: <MapIcon />, text: 'Interactive Map' },
-    { href: '#', icon: <CalendarIcon />, text: 'Cultural Calendar' },
-    { href: '#', icon: <HeadphonesIcon />, text: 'Audio Guide' },
-    { href: '#', icon: <ArchiveIcon />, text: 'Digital Archives' },
-    { href: '#', icon: <UsersIcon />, text: 'Local Services' },
+    { page: 'home', icon: <HomeIcon />, text: 'Home' },
+    { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours' },
+    { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map', disabled: true },
+    { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar', disabled: true },
+    { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Audio Guide', disabled: true },
+    { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives', disabled: true },
+    { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: true },
   ];
 
   const getInitials = (name?: string) => {
@@ -71,19 +100,27 @@ const Header: React.FC<HeaderProps> = ({ isSignedIn, userName, userPhone, onSign
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <a href="#" className="flex items-center space-x-2">
+            <button onClick={() => onNavigate('home')} className="flex items-center space-x-2">
               <span className="w-8 h-8 bg-brand-teal rounded-md flex items-center justify-center text-brand-dark font-bold text-lg">S</span>
               <span className="text-xl font-bold text-white">Sikkim Digital</span>
-            </a>
+            </button>
           </div>
 
-          <nav className="hidden lg:flex lg:items-center lg:space-x-6">
-             <a href="#" className="flex items-center px-3 py-2 rounded-md text-sm font-medium bg-brand-gray text-white">
-                <HomeIcon /> <span className="ml-2">Home</span>
-            </a>
-            {isSignedIn && navItems.slice(1).map(item => (
-                 <NavLink key={item.text} href={item.href} icon={item.icon}>{item.text}</NavLink>
-            ))}
+          <nav className="hidden lg:flex lg:items-center lg:space-x-1">
+             {navItems.map(item => {
+               if (!isSignedIn && item.page !== 'home') return null;
+               return (
+                 <NavButton 
+                    key={item.text} 
+                    onClick={() => onNavigate(item.page as Page)} 
+                    icon={item.icon} 
+                    isActive={currentPage === item.page}
+                    disabled={item.disabled}
+                >
+                    {item.text}
+                 </NavButton>
+               )
+             })}
           </nav>
 
           <div className="hidden lg:flex items-center space-x-4">
@@ -141,11 +178,21 @@ const Header: React.FC<HeaderProps> = ({ isSignedIn, userName, userPhone, onSign
       {isMenuOpen && (
         <div className="lg:hidden absolute top-16 left-0 right-0 bg-brand-dark border-b border-brand-gray">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-             {(isSignedIn ? navItems : [navItems[0]]).map(item => (
-                <a key={item.text} href={item.href} className="flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors duration-200">
+             {(isSignedIn ? navItems : navItems.slice(0,1)).map(item => (
+                <button
+                    key={item.text}
+                    onClick={() => {
+                        if (!item.disabled) {
+                            onNavigate(item.page as Page);
+                            setIsMenuOpen(false);
+                        }
+                    }}
+                    disabled={item.disabled}
+                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium transition-colors duration-200 ${item.disabled ? 'text-brand-text-secondary/50 cursor-not-allowed' : currentPage === item.page ? 'bg-brand-gray text-white' : 'text-brand-text-secondary hover:text-white hover:bg-brand-gray'}`}
+                >
                     {item.icon}
                     <span>{item.text}</span>
-                </a>
+                </button>
             ))}
           </div>
           <div className="pt-4 pb-3 border-t border-brand-gray">

@@ -1,37 +1,59 @@
 
+
 import React from 'react';
 import { CameraIcon, MapIcon, CalendarIcon, HeadphonesIcon, ArchiveIcon, UsersIcon } from './Icons';
+import type { Page } from '../App';
 
 interface FeatureCardProps {
   icon: React.ReactNode;
   title: string;
   description: string;
   imageUrl: string;
+  onClick?: () => void;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, imageUrl }) => (
-  <div className="bg-brand-gray rounded-xl overflow-hidden group border border-brand-light-gray/50 hover:border-brand-teal/50 transition-all duration-300 transform hover:-translate-y-1">
-    <div className="relative h-56">
-      <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-      <div className="absolute top-4 right-4 p-3 bg-black/50 rounded-full text-brand-teal">
-        {icon}
+const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, imageUrl, onClick }) => {
+  const commonClasses = "bg-brand-gray rounded-xl overflow-hidden group border border-brand-light-gray/50 hover:border-brand-teal/50 transition-all duration-300 transform hover:-translate-y-1 h-full flex flex-col";
+  
+  const content = (
+    <>
+      <div className="relative h-56">
+        <img src={imageUrl} alt={title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+        <div className="absolute top-4 right-4 p-3 bg-black/50 rounded-full text-brand-teal">
+          {icon}
+        </div>
       </div>
-    </div>
-    <div className="p-6">
-      <h3 className="text-xl font-bold text-white">{title}</h3>
-      <p className="mt-2 text-brand-text-secondary">{description}</p>
-    </div>
-  </div>
-);
+      <div className="p-6 flex-grow">
+        <h3 className="text-xl font-bold text-white">{title}</h3>
+        <p className="mt-2 text-brand-text-secondary">{description}</p>
+      </div>
+    </>
+  );
 
-const Features: React.FC = () => {
+  if (onClick) {
+    return (
+      <button onClick={onClick} className={`text-left w-full ${commonClasses}`}>
+        {content}
+      </button>
+    );
+  }
+
+  return (
+    <div className={commonClasses}>
+      {content}
+    </div>
+  );
+};
+
+const Features: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }) => {
   const featuresData = [
     {
       icon: <CameraIcon />,
       title: 'Virtual Monastery Tours',
       description: 'Immersive 360° panoramic views with multilingual narrated walkthroughs',
-      imageUrl: 'https://picsum.photos/seed/monastery/400/300'
+      imageUrl: 'https://picsum.photos/seed/monastery/400/300',
+      onClick: () => onNavigate('virtual-tours'),
     },
     {
       icon: <MapIcon />,

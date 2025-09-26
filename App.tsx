@@ -11,6 +11,7 @@ import AuthModal from './components/AuthModal';
 import ProfileModal from './components/ProfileModal';
 import AnimatedBackground from './components/AnimatedBackground';
 import { supabase } from './lib/supabase';
+import VirtualTours from './components/VirtualTours';
 
 export interface User {
   id?: number;
@@ -19,12 +20,15 @@ export interface User {
   email?: string;
 }
 
+export type Page = 'home' | 'virtual-tours';
+
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [currentPage, setCurrentPage] = useState<Page>('home');
 
 
   useEffect(() => {
@@ -115,6 +119,11 @@ const App: React.FC = () => {
   
   const handleCloseProfileModal = () => setIsProfileModalOpen(false);
 
+  const navigateTo = (page: Page) => {
+    setCurrentPage(page);
+    window.scrollTo(0, 0);
+  };
+
   const isSignedIn = !!currentUser;
 
   return (
@@ -127,18 +136,25 @@ const App: React.FC = () => {
           userPhone={currentUser?.phone}
           onSignInClick={handleOpenAuthModal} 
           onSignOut={handleSignOut}
-          onSearchClick={handleOpenSearch} 
+          onSearchClick={handleOpenSearch}
+          onNavigate={navigateTo}
+          currentPage={currentPage}
         />
         <main>
-          <Hero isSignedIn={isSignedIn} onSignInClick={handleOpenAuthModal} />
-          {isSignedIn && (
+          {currentPage === 'home' && (
             <>
-              <Features />
-              <ItineraryPlanner />
-              <Blogs />
-              <SearchCallToAction onSearchClick={handleOpenSearch} />
+              <Hero isSignedIn={isSignedIn} onSignInClick={handleOpenAuthModal} />
+              {isSignedIn && (
+                <>
+                  <Features onNavigate={navigateTo} />
+                  <ItineraryPlanner />
+                  <Blogs />
+                  <SearchCallToAction onSearchClick={handleOpenSearch} />
+                </>
+              )}
             </>
           )}
+          {currentPage === 'virtual-tours' && isSignedIn && <VirtualTours />}
         </main>
         <Footer isSignedIn={isSignedIn} />
       </div>
