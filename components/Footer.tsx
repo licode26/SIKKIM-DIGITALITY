@@ -6,7 +6,7 @@ const FooterLink: React.FC<{ href: string; children: React.ReactNode }> = ({ hre
   </li>
 );
 
-const Footer: React.FC<{ isSignedIn: boolean }> = ({ isSignedIn }) => {
+const Footer: React.FC = () => {
   return (
     <footer className="bg-brand-dark border-t border-brand-gray">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -22,29 +22,27 @@ const Footer: React.FC<{ isSignedIn: boolean }> = ({ isSignedIn }) => {
             </p>
           </div>
 
-          {isSignedIn && (
-            <>
-              <div>
-                <h3 className="font-semibold text-white tracking-wider">Explore</h3>
-                <ul className="mt-4 space-y-3">
-                  <FooterLink href="#">Virtual Tours</FooterLink>
-                  <FooterLink href="#">Interactive Map</FooterLink>
-                  <FooterLink href="#">Cultural Events</FooterLink>
-                  <FooterLink href="#">Audio Guide</FooterLink>
-                </ul>
-              </div>
+          <>
+            <div>
+              <h3 className="font-semibold text-white tracking-wider">Explore</h3>
+              <ul className="mt-4 space-y-3">
+                <FooterLink href="#">Virtual Tours</FooterLink>
+                <FooterLink href="#">Interactive Map</FooterLink>
+                <FooterLink href="#">Cultural Events</FooterLink>
+                <FooterLink href="#">Audio Guide</FooterLink>
+              </ul>
+            </div>
 
-              <div>
-                <h3 className="font-semibold text-white tracking-wider">Resources</h3>
-                <ul className="mt-4 space-y-3">
-                  <FooterLink href="#">Digital Archives</FooterLink>
-                  <FooterLink href="#">Local Services</FooterLink>
-                  <FooterLink href="#">Search</FooterLink>
-                  <FooterLink href="#">Travel Guidelines</FooterLink>
-                </ul>
-              </div>
-            </>
-          )}
+            <div>
+              <h3 className="font-semibold text-white tracking-wider">Resources</h3>
+              <ul className="mt-4 space-y-3">
+                <FooterLink href="#">Digital Archives</FooterLink>
+                <FooterLink href="#">Local Services</FooterLink>
+                <FooterLink href="#">Search</FooterLink>
+                <FooterLink href="#">Travel Guidelines</FooterLink>
+              </ul>
+            </div>
+          </>
           
           <div>
             <h3 className="font-semibold text-white tracking-wider">Connect</h3>
