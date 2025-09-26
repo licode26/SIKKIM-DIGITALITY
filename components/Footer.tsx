@@ -1,0 +1,69 @@
+import React from 'react';
+
+const FooterLink: React.FC<{ href: string; children: React.ReactNode }> = ({ href, children }) => (
+  <li>
+    <a href={href} className="text-brand-text-secondary hover:text-brand-teal transition-colors duration-200">{children}</a>
+  </li>
+);
+
+const Footer: React.FC<{ isSignedIn: boolean }> = ({ isSignedIn }) => {
+  return (
+    <footer className="bg-brand-dark border-t border-brand-gray">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          
+          <div className="md:col-span-2 lg:col-span-1">
+             <a href="#" className="flex items-center space-x-2">
+              <span className="w-8 h-8 bg-brand-teal rounded-md flex items-center justify-center text-brand-dark font-bold text-lg">S</span>
+              <span className="text-xl font-bold text-white">Sikkim Digital</span>
+            </a>
+            <p className="mt-4 text-brand-text-secondary text-sm">
+              Revolutionizing tourism in Sikkim through cutting-edge technology, sustainable practices, and authentic cultural experiences.
+            </p>
+          </div>
+
+          {isSignedIn && (
+            <>
+              <div>
+                <h3 className="font-semibold text-white tracking-wider">Explore</h3>
+                <ul className="mt-4 space-y-3">
+                  <FooterLink href="#">Virtual Tours</FooterLink>
+                  <FooterLink href="#">Interactive Map</FooterLink>
+                  <FooterLink href="#">Cultural Events</FooterLink>
+                  <FooterLink href="#">Audio Guide</FooterLink>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="font-semibold text-white tracking-wider">Resources</h3>
+                <ul className="mt-4 space-y-3">
+                  <FooterLink href="#">Digital Archives</FooterLink>
+                  <FooterLink href="#">Local Services</FooterLink>
+                  <FooterLink href="#">Search</FooterLink>
+                  <FooterLink href="#">Travel Guidelines</FooterLink>
+                </ul>
+              </div>
+            </>
+          )}
+          
+          <div>
+            <h3 className="font-semibold text-white tracking-wider">Connect</h3>
+            <ul className="mt-4 space-y-3">
+              <FooterLink href="#">Support</FooterLink>
+              <FooterLink href="#">Community</FooterLink>
+              <FooterLink href="#">Feedback</FooterLink>
+              <FooterLink href="#">Partnership</FooterLink>
+            </ul>
+          </div>
+
+        </div>
+
+        <div className="mt-12 border-t border-brand-light-gray pt-8 text-center text-sm text-brand-text-secondary">
+          <p>&copy; {new Date().getFullYear()} Sikkim Digital. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
