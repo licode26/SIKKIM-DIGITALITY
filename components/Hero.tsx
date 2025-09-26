@@ -1,6 +1,14 @@
 import React from 'react';
+import Counter from './Counter';
 
 const Hero: React.FC<{ isSignedIn: boolean; onSignInClick: () => void }> = ({ isSignedIn, onSignInClick }) => {
+  const stats = [
+    { label: 'Active Monasteries', value: 108 },
+    { label: 'Annual Cultural Events', value: 52 },
+    { label: 'Documented Trek Routes', value: 35 },
+    { label: 'Digitized Archival Items', value: 15621 },
+  ];
+
   return (
     <div
       className="relative bg-cover bg-center text-white"
@@ -27,22 +35,20 @@ const Hero: React.FC<{ isSignedIn: boolean; onSignInClick: () => void }> = ({ is
         )}
       </div>
       {isSignedIn && (
-         <div className="relative -mt-16 pb-16">
+         <div className="relative -mt-24 md:-mt-32 pb-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex flex-wrap justify-center md:justify-start gap-x-8 gap-y-4 text-left">
-                  <div className="text-sm">
-                      <span className="font-bold text-brand-teal">Active Monasteries:</span> 108
+            <div className="max-w-4xl mx-auto bg-brand-gray/50 backdrop-blur-md border border-brand-light-gray/20 rounded-xl shadow-lg p-6 md:p-8">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                {stats.map((stat) => (
+                  <div key={stat.label}>
+                    <div className="text-4xl md:text-5xl font-extrabold text-brand-teal tracking-tight">
+                      <Counter end={stat.value} duration={2000} />
+                    </div>
+                    <p className="mt-2 text-xs sm:text-sm text-brand-text-secondary uppercase tracking-wider">{stat.label}</p>
                   </div>
-                  <div className="text-sm">
-                      <span className="font-bold text-brand-teal">Cultural Events:</span> 24
-                  </div>
-                  <div className="text-sm">
-                      <span className="font-bold text-brand-teal">Travel Routes:</span> 15
-                  </div>
-                  <div className="text-sm">
-                      <span className="font-bold text-brand-teal">Digital Archives:</span> 1,247
-                  </div>
+                ))}
               </div>
+            </div>
           </div>
         </div>
       )}
