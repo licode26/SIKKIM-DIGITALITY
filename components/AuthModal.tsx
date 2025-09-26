@@ -11,8 +11,8 @@ type AuthStep = 'phone' | 'otp';
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [step, setStep] = useState<AuthStep>('phone');
-  const [countryCode, setCountryCode] = useState('+');
-  const [localPhoneNumber, setLocalPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
+  const [localPhoneNumber, setLocalPhoneNumber] = useState('7749929725');
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -38,8 +38,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     if (!isOpen) {
       setTimeout(() => {
         setStep('phone');
-        setCountryCode('+');
-        setLocalPhoneNumber('');
+        setCountryCode('+91');
+        setLocalPhoneNumber('7749929725');
         setOtp('');
         setError('');
         setIsLoading(false);
@@ -52,7 +52,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setError('');
 
     if (countryCode.length <= 1 || !/^\+\d+$/.test(countryCode)) {
-        setError('Please enter a valid country code (e.g., +1).');
+        setError('Please enter a valid country code (e.g., +91).');
         return;
     }
     
@@ -72,8 +72,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
     if (error) {
       console.error("Error sending OTP:", error.message);
-      if (error.message.includes("is not a valid phone number")) {
-         setError("Invalid phone number. For trial accounts, the number must be verified with the SMS provider.");
+      if (error.message.includes("is not a valid phone number") || error.message.includes("unverified")) {
+         setError("This number isn't verified for the demo. Please use the test number provided.");
       } else {
          setError(`Could not send OTP. Please check the number and try again.`);
       }
@@ -132,7 +132,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
         <div className="p-6 sm:p-8">
             {step === 'phone' ? (
-                <form onSubmit={handleSendOtp} className="space-y-6">
+                <form onSubmit={handleSendOtp} className="space-y-4">
                     <div>
                         <label htmlFor="phone-number" className="block text-sm font-medium text-brand-text-secondary mb-2">
                             Enter your mobile number
@@ -148,7 +148,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                     if (val.length > 4) val = val.slice(0, 4);
                                     setCountryCode(val);
                                 }}
-                                placeholder="+1"
+                                placeholder="+91"
                                 className="w-1/4 bg-brand-dark border border-brand-light-gray rounded-lg py-3 px-3 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
                                 required
                                 aria-label="Country Code"
@@ -162,7 +162,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                                     type="tel"
                                     value={localPhoneNumber}
                                     onChange={(e) => setLocalPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                                    placeholder="5551234567"
+                                    placeholder="7749929725"
                                     className="w-full bg-brand-dark border border-brand-light-gray rounded-lg py-3 pl-10 pr-4 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
                                     required
                                     aria-label="Phone Number"
@@ -170,6 +170,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                             </div>
                         </div>
                     </div>
+                    
+                    <div className="p-3 bg-brand-dark/50 border border-brand-light-gray/30 rounded-lg">
+                        <p className="text-xs text-brand-text-secondary text-center">
+                            <span className="font-semibold text-brand-text">Demo Note:</span> OTPs only work with the pre-verified number <br/> <span className="font-semibold text-brand-teal whitespace-nowrap">+91 7749929725</span>
+                        </p>
+                    </div>
+
                     {error && <p className="text-sm text-red-400 text-center">{error}</p>}
                     <div>
                          <button
