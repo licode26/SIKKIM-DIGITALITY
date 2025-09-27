@@ -50,7 +50,7 @@ const Footer: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }) 
             <div>
               <h3 className="font-semibold text-white tracking-wider">Resources</h3>
               <ul className="mt-4 space-y-3">
-                <FooterLink href="#">Digital Archives</FooterLink>
+                <FooterLink onClick={() => onNavigate('digital-archives')}>Digital Archives</FooterLink>
                 <FooterLink href="#">Local Services</FooterLink>
                 <FooterLink href="#">Search</FooterLink>
                 <FooterLink href="#">Travel Guidelines</FooterLink>

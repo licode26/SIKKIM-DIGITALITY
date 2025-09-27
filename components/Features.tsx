@@ -78,7 +78,8 @@ const Features: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }
       icon: <ArchiveIcon />,
       title: 'Digital Archives',
       description: 'AI-powered search through historical manuscripts and cultural artifacts',
-      imageUrl: 'https://picsum.photos/seed/archive/400/300'
+      imageUrl: 'https://picsum.photos/seed/archive/400/300',
+      onClick: () => onNavigate('digital-archives'),
     },
     {
       icon: <UsersIcon />,

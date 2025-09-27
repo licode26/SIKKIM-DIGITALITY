@@ -28,6 +28,7 @@ export const MicrophoneIcon: React.FC = () => <Icon><path strokeLinecap="round" 
 export const CrosshairIcon: React.FC = () => <Icon><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12h-4m-3 9v-4m-9-3h4m3-9v4" /></Icon>;
 export const ChevronLeftIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></Icon>;
 export const ChevronRightIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></Icon>;
+export const DownloadIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></Icon>;
 
 
 // Onboarding related Icons
