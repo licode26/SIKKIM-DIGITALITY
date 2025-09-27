@@ -85,7 +85,8 @@ const Features: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }
       icon: <UsersIcon />,
       title: 'Local Services Hub',
       description: 'Connect with verified local guides, transport, and accommodation',
-      imageUrl: 'https://picsum.photos/seed/services/400/300'
+      imageUrl: 'https://picsum.photos/seed/services/400/300',
+      onClick: () => onNavigate('local-services'),
     }
   ];
 

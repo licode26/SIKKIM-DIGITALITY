@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import {
   HomeIcon,
@@ -55,14 +56,15 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  const navItems = [
+  // FIX: Added an explicit type to the navItems array to include the optional 'disabled' property, resolving TypeScript errors.
+  const navItems: { page: Page; icon: React.ReactNode; text: string; disabled?: boolean }[] = [
     { page: 'home', icon: <HomeIcon />, text: 'Home' },
     { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours' },
     { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map' },
     { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar' },
     { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Talk to Guide' },
     { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives' },
-    { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: true },
+    { page: 'local-services', icon: <UsersIcon />, text: 'Local Services' },
   ];
 
   return (
@@ -80,7 +82,8 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
              {navItems.map(item => (
                  <NavButton 
                     key={item.text} 
-                    onClick={() => onNavigate(item.page as Page)} 
+                    // FIX: Removed unnecessary 'as Page' type assertion as 'item.page' is now correctly typed.
+                    onClick={() => onNavigate(item.page)} 
                     icon={item.icon} 
                     isActive={currentPage === item.page}
                     disabled={item.disabled}
@@ -117,7 +120,8 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
                     key={item.text}
                     onClick={() => {
                         if (!item.disabled) {
-                            onNavigate(item.page as Page);
+                            // FIX: Removed unnecessary 'as Page' type assertion as 'item.page' is now correctly typed.
+                            onNavigate(item.page);
                             setIsMenuOpen(false);
                         }
                     }}

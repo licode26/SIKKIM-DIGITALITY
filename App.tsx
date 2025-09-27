@@ -13,6 +13,7 @@ import AudioGuide from './components/AudioGuide';
 import InteractiveMap from './components/InteractiveMap';
 import CulturalCalendar from './components/CulturalCalendar';
 import DigitalArchives from './components/DigitalArchives';
+import LocalServices from './components/LocalServices';
 
 export type Page =
   | 'home'
@@ -20,7 +21,8 @@ export type Page =
   | 'audio-guide'
   | 'interactive-map'
   | 'cultural-calendar'
-  | 'digital-archives';
+  | 'digital-archives'
+  | 'local-services';
 
 const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -60,6 +62,7 @@ const App: React.FC = () => {
           {currentPage === 'interactive-map' && <InteractiveMap />}
           {currentPage === 'cultural-calendar' && <CulturalCalendar />}
           {currentPage === 'digital-archives' && <DigitalArchives />}
+          {currentPage === 'local-services' && <LocalServices />}
         </main>
         <Footer onNavigate={navigateTo} />
       </div>
