@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { CalendarIcon, MapPinIcon, ChevronLeftIcon, ChevronRightIcon } from './Icons';
+import EventDetailModal from './EventDetailModal';
 
-interface Event {
+export interface Event {
   name: string;
   date: string; // Display date string
   location: string;
   description: string;
-  // Added for calendar highlighting (month is 0-indexed)
   month: number; 
   day: number;
+  historicalContext: string;
+  communities: string;
+  customs: string[];
 }
 
 const sikkimEvents: Event[] = [
@@ -19,6 +22,9 @@ const sikkimEvents: Event[] = [
     description: "A sacred Buddhist festival celebrating Buddha's birth, enlightenment, and nirvana. Monks lead a grand procession with holy scriptures.",
     month: 4, // May
     day: 23,
+    historicalContext: "Saga Dawa is the most sacred month in the Tibetan Buddhist calendar, commemorating the key life events of Lord Buddha. The full moon day of this month is particularly significant as it is believed to be the day he was born, attained enlightenment, and passed away.",
+    communities: "Primarily celebrated by the Buddhist communities of Sikkim, including Bhutias and Tibetans.",
+    customs: ["Releasing of fish or birds to give life.", "Reading of holy scriptures (Dho-hang).", "Lighting of butter lamps in homes and monasteries.", "Abstaining from eating meat."],
   },
   {
     name: "Losar Festival",
@@ -27,6 +33,9 @@ const sikkimEvents: Event[] = [
     description: "The Tibetan New Year celebration, marked by vibrant cham dances, traditional rituals, and family feasts, welcoming a new year of peace.",
     month: 1, // Feb
     day: 10,
+    historicalContext: "Losar has pre-Buddhist origins in Tibet, stemming from a winter incense-burning festival. It was later incorporated into Tibetan Buddhism and has been celebrated for centuries as a time of renewal and purification.",
+    communities: "Celebrated by Tibetan Buddhists, primarily the Bhutia and Sherpa communities in Sikkim.",
+    customs: ["Cleaning homes to drive away evil spirits.", "Making special offerings called 'Lama Losar'.", "Hoisting new prayer flags.", "Engaging in masked 'Cham' dances at monasteries."],
   },
   {
     name: "Pang Lhabsol",
@@ -35,6 +44,9 @@ const sikkimEvents: Event[] = [
     description: "A unique festival honoring Mount Kanchenjunga as Sikkim's guardian deity. Features the spectacular 'Pangtoed' warrior dance.",
     month: 7, // August
     day: 15,
+    historicalContext: "The festival was introduced by the third Chogyal (King) of Sikkim, Chakdor Namgyal. It commemorates the blood brotherhood pact sworn between the Bhutias and Lepchas, with Mount Kanchenjunga as the witness.",
+    communities: "Celebrated by all communities in Sikkim as it honors the state's guardian deity.",
+    customs: ["The 'Pangtoed' chaam dance performed by warrior monks.", "The dramatic entrance of Mahakala, the protector deity.", "Offerings of 'Dzonga' (the local deity) and 'Yabdu' (the guardian of the world)."],
   },
   {
     name: "Losoong / Namsoong",
@@ -43,6 +55,9 @@ const sikkimEvents: Event[] = [
     description: "The Sikkimese New Year, a harvest festival celebrated by Bhutia and Lepcha communities with archery, feasting, and religious ceremonies.",
     month: 11, // December
     day: 18,
+    historicalContext: "Losoong marks the end of the harvest season and the 10th month of the Tibetan lunar calendar. It is a time for farmers to rejoice and celebrate their hard work and yield.",
+    communities: "Celebrated by the Bhutia (as Losoong) and Lepcha (as Namsoong) communities.",
+    customs: ["Archery competitions are a major highlight.", "Burning effigies of demons to ward off evil spirits.", "Offering 'Chi-Fut', a special kind of alcohol, to the deities.", "Performing Black Hat dances in monasteries."],
   },
   {
     name: "Tendong Lho Rum Faat",
@@ -51,17 +66,26 @@ const sikkimEvents: Event[] = [
     description: "A festival of the Lepcha tribe, celebrating the sacred Tendong Hill which is believed to have saved their ancestors from a great flood.",
     month: 7, // August
     day: 8,
+    historicalContext: "According to Lepcha folklore, Tendong Hill rose like a horn to save the Lepcha people from a great deluge that flooded the region for 40 days and 40 nights. The festival pays homage to this savior hill.",
+    communities: "This is the most ancient and significant festival for the Lepcha community, the original inhabitants of Sikkim.",
+    customs: ["Trekking to the top of Tendong Hill to make offerings.", "Models of the hill are created and worshipped at home.", "Literary and cultural programs are organized to promote Lepcha traditions."],
   },
 ];
 
 
 interface EventCardProps {
   event: Event;
+  onClick: () => void;
 }
 
-const EventCard: React.FC<EventCardProps> = ({ event }) => (
-  <div id={`event-${event.month}-${event.day}`} className="bg-brand-gray/50 border border-brand-light-gray/20 rounded-xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-start animate-fade-in">
-    <div className="w-full md:w-1/3 h-48 md:h-full rounded-lg overflow-hidden">
+const EventCard: React.FC<EventCardProps> = ({ event, onClick }) => (
+  <button 
+    id={`event-${event.month}-${event.day}`} 
+    onClick={onClick}
+    className="w-full text-left bg-brand-gray/50 border border-brand-light-gray/20 rounded-xl shadow-lg p-6 flex flex-col md:flex-row gap-6 items-start transition-all duration-300 transform hover:-translate-y-1 hover:border-brand-teal/50 focus:outline-none focus:ring-2 focus:ring-brand-teal focus:ring-offset-2 focus:ring-offset-brand-dark"
+    aria-label={`View details for ${event.name}`}
+  >
+    <div className="w-full md:w-1/3 h-48 md:h-auto rounded-lg overflow-hidden shrink-0">
       <img 
         src={`https://picsum.photos/seed/${event.name.replace(/\s/g, '')}/400/300`} 
         alt={event.name} 
@@ -82,11 +106,12 @@ const EventCard: React.FC<EventCardProps> = ({ event }) => (
       </div>
       <p className="mt-4 text-brand-text">{event.description}</p>
     </div>
-  </div>
+  </button>
 );
 
 const CulturalCalendar: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
+    const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
     const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
@@ -165,11 +190,12 @@ const CulturalCalendar: React.FC = () => {
                     
                     <div className="mt-16 space-y-8 max-w-4xl mx-auto">
                         {sikkimEvents.map(event => (
-                            <EventCard key={event.name} event={event} />
+                            <EventCard key={event.name} event={event} onClick={() => setSelectedEvent(event)} />
                         ))}
                     </div>
                 </div>
             </section>
+            {selectedEvent && <EventDetailModal event={selectedEvent} onClose={() => setSelectedEvent(null)} />}
         </div>
     );
 };
