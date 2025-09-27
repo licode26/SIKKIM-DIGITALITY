@@ -29,7 +29,7 @@ const Footer: React.FC = () => {
                 <FooterLink href="#">Virtual Tours</FooterLink>
                 <FooterLink href="#">Interactive Map</FooterLink>
                 <FooterLink href="#">Cultural Events</FooterLink>
-                <FooterLink href="#">Audio Guide</FooterLink>
+                <FooterLink href="#">Talk to Guide</FooterLink>
               </ul>
             </div>
 

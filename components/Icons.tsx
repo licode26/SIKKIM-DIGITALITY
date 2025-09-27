@@ -24,8 +24,10 @@ export const BookOpenIcon: React.FC = () => <Icon><path strokeLinecap="round" st
 export const PlayIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" /></Icon>;
 export const PauseIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></Icon>;
 export const StopIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></Icon>;
+export const MicrophoneIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 11-14 0m7 6v4m0 0H8m4 0h4m-4-8a3 3 0 013 3v3a3 3 0 11-6 0v-3a3 3 0 013-3z" /></Icon>;
 
 // Onboarding related Icons
 export const DevicePhoneMobileIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></Icon>;
 export const UserIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></Icon>;
+// FIX: Corrected a typo from 'comst' to 'const' to properly export the MailIcon component.
 export const MailIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></Icon>;

@@ -9,8 +9,9 @@ import Footer from './components/Footer';
 import SearchModal from './components/SearchModal';
 import AnimatedBackground from './components/AnimatedBackground';
 import VirtualTours from './components/VirtualTours';
+import AudioGuide from './components/AudioGuide';
 
-export type Page = 'home' | 'virtual-tours';
+export type Page = 'home' | 'virtual-tours' | 'audio-guide';
 
 const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -46,6 +47,7 @@ const App: React.FC = () => {
             </>
           )}
           {currentPage === 'virtual-tours' && <VirtualTours />}
+          {currentPage === 'audio-guide' && <AudioGuide />}
         </main>
         <Footer />
       </div>

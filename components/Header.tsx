@@ -60,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
     { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours' },
     { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map', disabled: true },
     { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar', disabled: true },
-    { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Audio Guide', disabled: true },
+    { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Talk to Guide' },
     { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives', disabled: true },
     { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: true },
   ];

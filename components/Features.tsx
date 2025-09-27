@@ -69,9 +69,10 @@ const Features: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }
     },
     {
       icon: <HeadphonesIcon />,
-      title: 'AI Audio Guide',
+      title: 'Talk to Guide',
       description: 'Smart offline-capable audio guides with personalized recommendations',
-      imageUrl: 'https://picsum.photos/seed/audio/400/300'
+      imageUrl: 'https://picsum.photos/seed/audio/400/300',
+      onClick: () => onNavigate('audio-guide'),
     },
     {
       icon: <ArchiveIcon />,
