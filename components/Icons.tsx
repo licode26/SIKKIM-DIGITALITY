@@ -25,6 +25,10 @@ export const PlayIcon: React.FC = () => <Icon><path strokeLinecap="round" stroke
 export const PauseIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" /></Icon>;
 export const StopIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z" /></Icon>;
 export const MicrophoneIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M19 11a7 7 0 11-14 0m7 6v4m0 0H8m4 0h4m-4-8a3 3 0 013 3v3a3 3 0 11-6 0v-3a3 3 0 013-3z" /></Icon>;
+export const CrosshairIcon: React.FC = () => <Icon><path d="M12 21a9 9 0 100-18 9 9 0 000 18z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12h-4m-3 9v-4m-9-3h4m3-9v4" /></Icon>;
+export const ChevronLeftIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></Icon>;
+export const ChevronRightIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></Icon>;
+
 
 // Onboarding related Icons
 export const DevicePhoneMobileIcon: React.FC = () => <Icon><path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></Icon>;

@@ -10,8 +10,15 @@ import SearchModal from './components/SearchModal';
 import AnimatedBackground from './components/AnimatedBackground';
 import VirtualTours from './components/VirtualTours';
 import AudioGuide from './components/AudioGuide';
+import InteractiveMap from './components/InteractiveMap';
+import CulturalCalendar from './components/CulturalCalendar';
 
-export type Page = 'home' | 'virtual-tours' | 'audio-guide';
+export type Page =
+  | 'home'
+  | 'virtual-tours'
+  | 'audio-guide'
+  | 'interactive-map'
+  | 'cultural-calendar';
 
 const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -48,8 +55,10 @@ const App: React.FC = () => {
           )}
           {currentPage === 'virtual-tours' && <VirtualTours />}
           {currentPage === 'audio-guide' && <AudioGuide />}
+          {currentPage === 'interactive-map' && <InteractiveMap />}
+          {currentPage === 'cultural-calendar' && <CulturalCalendar />}
         </main>
-        <Footer />
+        <Footer onNavigate={navigateTo} />
       </div>
       <SearchModal isOpen={isSearchOpen} onClose={handleCloseSearch} />
     </div>

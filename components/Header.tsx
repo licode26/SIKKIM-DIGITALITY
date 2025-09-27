@@ -58,8 +58,8 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
   const navItems = [
     { page: 'home', icon: <HomeIcon />, text: 'Home' },
     { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours' },
-    { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map', disabled: true },
-    { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar', disabled: true },
+    { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map' },
+    { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar' },
     { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Talk to Guide' },
     { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives', disabled: true },
     { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: true },

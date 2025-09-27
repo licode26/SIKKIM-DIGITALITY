@@ -1,5 +1,3 @@
-
-
 import React from 'react';
 import { CameraIcon, MapIcon, CalendarIcon, HeadphonesIcon, ArchiveIcon, UsersIcon } from './Icons';
 import type { Page } from '../App';
@@ -59,13 +57,15 @@ const Features: React.FC<{ onNavigate: (page: Page) => void }> = ({ onNavigate }
       icon: <MapIcon />,
       title: 'Interactive Smart Maps',
       description: 'Geo-tagged locations, travel routes, and real-time attraction updates',
-      imageUrl: 'https://picsum.photos/seed/map/400/300'
+      imageUrl: 'https://picsum.photos/seed/map/400/300',
+      onClick: () => onNavigate('interactive-map'),
     },
     {
       icon: <CalendarIcon />,
       title: 'Cultural Event Calendar',
       description: 'Discover and book authentic cultural experiences and festivals',
-      imageUrl: 'https://picsum.photos/seed/festival/400/300'
+      imageUrl: 'https://picsum.photos/seed/festival/400/300',
+      onClick: () => onNavigate('cultural-calendar'),
     },
     {
       icon: <HeadphonesIcon />,
