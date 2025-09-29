@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { XIcon, UserIcon, MailIcon, SpinnerIcon } from './Icons';
+import { auth } from '../database';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -31,7 +32,13 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, is
   }, [isOpen, handleKeyDown]);
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+        const user = auth.currentUser;
+        if (user) {
+            setName(user.displayName || '');
+            setEmail(user.email || '');
+        }
+    } else {
       setTimeout(() => {
         setName('');
         setEmail('');

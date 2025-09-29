@@ -1,7 +1,14 @@
 import React from 'react';
 import Counter from './Counter';
+import { GoogleIcon } from './Icons';
+import type { User } from 'firebase/auth';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onSignIn?: () => void;
+  user?: User | null;
+}
+
+const Hero: React.FC<HeroProps> = ({ onSignIn, user }) => {
   const stats = [
     { label: 'Active Monasteries', value: 108 },
     { label: 'Annual Cultural Events', value: 52 },
@@ -21,8 +28,19 @@ const Hero: React.FC = () => {
           <span className="text-brand-teal">Digital Future</span>
         </h1>
         <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-brand-text-secondary">
-          Experience the mystical beauty of Sikkim through cutting-edge technology. Virtual tours, interactive maps, and AI-powered guides await your exploration.
+          { user 
+            ? `Welcome back, ${user.displayName || 'Explorer'}! Continue your journey into the heart of Sikkim.` 
+            : 'Experience the mystical beauty of Sikkim through cutting-edge technology. Virtual tours, interactive maps, and AI-powered guides await your exploration.'
+          }
         </p>
+        {!user && onSignIn && (
+            <div className="mt-10">
+                <button onClick={onSignIn} className="inline-flex items-center space-x-3 px-8 py-4 text-lg font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105">
+                    <GoogleIcon />
+                    <span>Sign In to Explore</span>
+                </button>
+            </div>
+        )}
       </div>
       <div className="relative -mt-24 md:-mt-32 pb-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">

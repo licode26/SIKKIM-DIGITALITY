@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import type { User } from 'firebase/auth';
 import {
   HomeIcon,
   CameraIcon,
@@ -11,6 +12,7 @@ import {
   SearchIcon,
   MenuIcon,
   XIcon,
+  GoogleIcon,
 } from './Icons';
 import type { Page } from '../App';
 
@@ -48,23 +50,26 @@ const NavButton: React.FC<NavButtonProps> = ({ onClick, icon, children, isActive
 };
 
 interface HeaderProps {
+  user: User | null;
+  onSignIn: () => void;
+  onSignOut: () => void;
   onSearchClick: () => void;
   onNavigate: (page: Page) => void;
   currentPage: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage }) => {
+const Header: React.FC<HeaderProps> = ({ user, onSignIn, onSignOut, onSearchClick, onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
-  // FIX: Added an explicit type to the navItems array to include the optional 'disabled' property, resolving TypeScript errors.
   const navItems: { page: Page; icon: React.ReactNode; text: string; disabled?: boolean }[] = [
     { page: 'home', icon: <HomeIcon />, text: 'Home' },
-    { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours' },
-    { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map' },
-    { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar' },
-    { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Talk to Guide' },
-    { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives' },
-    { page: 'local-services', icon: <UsersIcon />, text: 'Local Services' },
+    { page: 'virtual-tours', icon: <CameraIcon />, text: 'Virtual Tours', disabled: !user },
+    { page: 'interactive-map', icon: <MapIcon />, text: 'Interactive Map', disabled: !user },
+    { page: 'cultural-calendar', icon: <CalendarIcon />, text: 'Cultural Calendar', disabled: !user },
+    { page: 'audio-guide', icon: <HeadphonesIcon />, text: 'Talk to Guide', disabled: !user },
+    { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives', disabled: !user },
+    { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: !user },
   ];
 
   return (
@@ -81,8 +86,7 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
           <nav className="hidden lg:flex lg:items-center lg:space-x-1">
              {navItems.map(item => (
                  <NavButton 
-                    key={item.text} 
-                    // FIX: Removed unnecessary 'as Page' type assertion as 'item.page' is now correctly typed.
+                    key={item.text}
                     onClick={() => onNavigate(item.page)} 
                     icon={item.icon} 
                     isActive={currentPage === item.page}
@@ -95,9 +99,30 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
           </nav>
 
           <div className="hidden lg:flex items-center space-x-4">
-            <button onClick={onSearchClick} className="p-2 rounded-full text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors">
-              <SearchIcon />
-            </button>
+            {user ? (
+              <>
+                <button onClick={onSearchClick} className="p-2 rounded-full text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors">
+                  <SearchIcon />
+                </button>
+                <div className="relative">
+                  <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} onBlur={() => setTimeout(() => setIsUserMenuOpen(false), 200)} className="flex items-center">
+                    <img src={user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`} alt="User avatar" className="w-8 h-8 rounded-full" />
+                  </button>
+                  {isUserMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-brand-gray rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animate-fade-in">
+                      <button onClick={onSignOut} className="block w-full text-left px-4 py-2 text-sm text-brand-text-secondary hover:bg-brand-light-gray hover:text-white transition-colors">
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <button onClick={onSignIn} className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-semibold bg-brand-dark border border-brand-light-gray text-white rounded-md hover:bg-brand-gray transition-colors">
+                <GoogleIcon />
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
 
           <div className="lg:hidden">
@@ -120,7 +145,6 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
                     key={item.text}
                     onClick={() => {
                         if (!item.disabled) {
-                            // FIX: Removed unnecessary 'as Page' type assertion as 'item.page' is now correctly typed.
                             onNavigate(item.page);
                             setIsMenuOpen(false);
                         }
@@ -134,10 +158,21 @@ const Header: React.FC<HeaderProps> = ({ onSearchClick, onNavigate, currentPage 
             ))}
           </div>
           <div className="pt-4 pb-3 border-t border-brand-gray">
-            <div className="flex items-center px-5 space-x-4">
-               <button onClick={onSearchClick} className="flex-grow flex items-center justify-center p-2 rounded-md text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors">
-                 <SearchIcon /> <span className="ml-2">Search</span>
-               </button>
+            <div className="px-5">
+              {user ? (
+                <div className="space-y-2">
+                  <button onClick={() => { onSearchClick(); setIsMenuOpen(false); }} className="w-full flex items-center justify-center p-2 rounded-md text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors">
+                    <SearchIcon /> <span className="ml-2">Search</span>
+                  </button>
+                  <button onClick={() => { onSignOut(); setIsMenuOpen(false); }} className="w-full flex items-center justify-center p-2 rounded-md text-brand-text-secondary hover:text-white hover:bg-brand-gray transition-colors">
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => { onSignIn(); setIsMenuOpen(false); }} className="w-full flex items-center justify-center p-2 rounded-md text-white bg-brand-gray hover:bg-brand-light-gray transition-colors">
+                  <GoogleIcon /> <span className="ml-2">Sign In with Google</span>
+                </button>
+              )}
             </div>
           </div>
         </div>
