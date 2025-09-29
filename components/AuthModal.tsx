@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { XIcon, DevicePhoneMobileIcon, SpinnerIcon } from './Icons';
-import { supabase } from '../lib/supabase';
+// FIX: The supabase import is removed as the Supabase integration has been deprecated. This component is not currently in use.
+// import { supabase } from '../lib/supabase';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -62,50 +63,56 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
     
     setIsLoading(true);
-    const fullPhoneNumber = countryCode + localPhoneNumber;
+    // const fullPhoneNumber = countryCode + localPhoneNumber;
     
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: fullPhoneNumber,
-    });
+    // FIX: Supabase logic is commented out as the service has been removed.
+    // const { error } = await supabase.auth.signInWithOtp({
+    //   phone: fullPhoneNumber,
+    // });
 
+    // setIsLoading(false);
+
+    // if (error) {
+    //   console.error("Error sending OTP:", error.message);
+    //   if (error.message.includes("is not a valid phone number") || error.message.includes("unverified")) {
+    //      setError("This number isn't verified for the demo. Please use the test number provided.");
+    //   } else {
+    //      setError(`Could not send OTP. Please check the number and try again.`);
+    //   }
+    // } else {
+    //   setStep('otp');
+    // }
+    setError("Phone authentication is currently disabled.");
     setIsLoading(false);
-
-    if (error) {
-      console.error("Error sending OTP:", error.message);
-      if (error.message.includes("is not a valid phone number") || error.message.includes("unverified")) {
-         setError("This number isn't verified for the demo. Please use the test number provided.");
-      } else {
-         setError(`Could not send OTP. Please check the number and try again.`);
-      }
-    } else {
-      setStep('otp');
-    }
   };
   
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setIsLoading(true);
-    const fullPhoneNumber = countryCode + localPhoneNumber;
+    // const fullPhoneNumber = countryCode + localPhoneNumber;
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone: fullPhoneNumber,
-      token: otp,
-      type: 'sms',
-    });
+    // FIX: Supabase logic is commented out as the service has been removed.
+    // const { data, error } = await supabase.auth.verifyOtp({
+    //   phone: fullPhoneNumber,
+    //   token: otp,
+    //   type: 'sms',
+    // });
 
+    // setIsLoading(false);
+
+    // if (error) {
+    //     console.error("Error verifying OTP:", error.message);
+    //     setError('Invalid OTP. Please try again.');
+    // } else if (data.session) {
+    //     console.log('OTP verified successfully.');
+    //     // The onAuthStateChange listener in App.tsx will handle the rest.
+    //     onClose();
+    // } else {
+    //     setError('Could not sign you in. Please try again.');
+    // }
+    setError("Phone authentication is currently disabled.");
     setIsLoading(false);
-
-    if (error) {
-        console.error("Error verifying OTP:", error.message);
-        setError('Invalid OTP. Please try again.');
-    } else if (data.session) {
-        console.log('OTP verified successfully.');
-        // The onAuthStateChange listener in App.tsx will handle the rest.
-        onClose();
-    } else {
-        setError('Could not sign you in. Please try again.');
-    }
   };
 
   const changeNumber = () => {

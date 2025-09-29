@@ -1,17 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { XIcon, UserIcon, MailIcon, SpinnerIcon } from './Icons';
+import { XIcon, UserIcon, SpinnerIcon } from './Icons';
 import { auth } from '../database';
 
 interface ProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (name: string, email: string) => void;
+  onSave: (name: string) => void;
   isSaving: boolean;
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, isSaving }) => {
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
 
   const handleKeyDown = useCallback((event: KeyboardEvent) => {
@@ -36,12 +35,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, is
         const user = auth.currentUser;
         if (user) {
             setName(user.displayName || '');
-            setEmail(user.email || '');
         }
     } else {
       setTimeout(() => {
         setName('');
-        setEmail('');
         setError('');
       }, 300);
     }
@@ -50,17 +47,11 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, is
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!name.trim() || !email.trim()) {
-      setError('Please fill out both fields.');
+    if (!name.trim()) {
+      setError('Please enter your name.');
       return;
     }
-    // basic email validation
-    if (!/\S+@\S+\.\S+/.test(email)) {
-        setError('Please enter a valid email address.');
-        return;
-    }
-    
-    onSave(name, email);
+    onSave(name);
   };
 
   if (!isOpen) {
@@ -78,7 +69,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, is
         </div>
 
         <div className="p-6 sm:p-8">
-            <p className="text-center text-brand-text-secondary text-sm mb-6">Welcome! Just a few more details to unlock your personalized experience.</p>
+            <p className="text-center text-brand-text-secondary text-sm mb-6">Welcome! Please set your name to unlock your personalized experience.</p>
             <form onSubmit={handleSubmit} className="space-y-6">
                  <div>
                     <label htmlFor="full-name" className="block text-sm font-medium text-brand-text-secondary mb-2">
@@ -99,26 +90,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose, onSave, is
                         />
                     </div>
                 </div>
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-brand-text-secondary mb-2">
-                        Email Address
-                    </label>
-                    <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <MailIcon />
-                        </div>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
-                            className="w-full bg-brand-dark border border-brand-light-gray rounded-lg py-3 pl-10 pr-4 text-brand-text placeholder-brand-text-secondary focus:ring-2 focus:ring-brand-teal focus:border-brand-teal focus:outline-none transition-colors"
-                            required
-                        />
-                    </div>
-                </div>
-
+                
                 {error && <p className="text-sm text-red-400 text-center">{error}</p>}
 
                 <div>

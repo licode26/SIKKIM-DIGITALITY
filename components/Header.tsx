@@ -1,6 +1,7 @@
-
 import React, { useState } from 'react';
-import type { User } from 'firebase/auth';
+// FIX: Updated Firebase import for v8 compatibility to correctly reference the User type.
+// FIX: Switched to Firebase v8 compat import to resolve type error for firebase.User.
+import type firebase from 'firebase/compat/app';
 import {
   HomeIcon,
   CameraIcon,
@@ -12,7 +13,6 @@ import {
   SearchIcon,
   MenuIcon,
   XIcon,
-  GoogleIcon,
 } from './Icons';
 import type { Page } from '../App';
 
@@ -50,15 +50,15 @@ const NavButton: React.FC<NavButtonProps> = ({ onClick, icon, children, isActive
 };
 
 interface HeaderProps {
-  user: User | null;
-  onSignIn: () => void;
+  user: firebase.User | null;
+  onAuthClick: () => void;
   onSignOut: () => void;
   onSearchClick: () => void;
   onNavigate: (page: Page) => void;
   currentPage: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ user, onSignIn, onSignOut, onSearchClick, onNavigate, currentPage }) => {
+const Header: React.FC<HeaderProps> = ({ user, onAuthClick, onSignOut, onSearchClick, onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
 
@@ -71,6 +71,22 @@ const Header: React.FC<HeaderProps> = ({ user, onSignIn, onSignOut, onSearchClic
     { page: 'digital-archives', icon: <ArchiveIcon />, text: 'Digital Archives', disabled: !user },
     { page: 'local-services', icon: <UsersIcon />, text: 'Local Services', disabled: !user },
   ];
+
+  const userDropdownContent = (
+    <div className="absolute right-0 mt-2 w-56 bg-brand-gray rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animate-fade-in z-50">
+      <div className="px-4 py-3">
+        <p className="text-sm text-white font-semibold truncate">{user?.displayName || 'Anonymous User'}</p>
+        <p className="text-sm text-brand-text-secondary truncate">{user?.email || 'No email provided'}</p>
+      </div>
+      <div className="border-t border-brand-light-gray/50"></div>
+      <button 
+        onClick={() => { onSignOut(); setIsUserMenuOpen(false); }} 
+        className="block w-full text-left px-4 py-2 text-sm text-brand-text-secondary hover:bg-brand-light-gray hover:text-white transition-colors"
+      >
+        Sign Out
+      </button>
+    </div>
+  );
 
   return (
     <header className="sticky top-0 z-50 bg-brand-dark/80 backdrop-blur-lg border-b border-brand-gray">
@@ -108,24 +124,25 @@ const Header: React.FC<HeaderProps> = ({ user, onSignIn, onSignOut, onSearchClic
                   <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} onBlur={() => setTimeout(() => setIsUserMenuOpen(false), 200)} className="flex items-center">
                     <img src={user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`} alt="User avatar" className="w-8 h-8 rounded-full" />
                   </button>
-                  {isUserMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-brand-gray rounded-md shadow-lg py-1 ring-1 ring-black ring-opacity-5 animate-fade-in">
-                      <button onClick={onSignOut} className="block w-full text-left px-4 py-2 text-sm text-brand-text-secondary hover:bg-brand-light-gray hover:text-white transition-colors">
-                        Sign Out
-                      </button>
-                    </div>
-                  )}
+                  {isUserMenuOpen && userDropdownContent}
                 </div>
               </>
             ) : (
-              <button onClick={onSignIn} className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-semibold bg-brand-dark border border-brand-light-gray text-white rounded-md hover:bg-brand-gray transition-colors">
-                <GoogleIcon />
-                <span>Sign In</span>
+              <button onClick={onAuthClick} className="inline-flex items-center space-x-2 px-4 py-2 text-sm font-semibold bg-brand-dark border border-brand-light-gray text-white rounded-md hover:bg-brand-gray transition-colors">
+                <span>Sign In / Sign Up</span>
               </button>
             )}
           </div>
 
-          <div className="lg:hidden">
+          <div className="lg:hidden flex items-center space-x-2">
+            {user && (
+              <div className="relative">
+                <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} onBlur={() => setTimeout(() => setIsUserMenuOpen(false), 200)} className="flex items-center">
+                  <img src={user.photoURL || `https://i.pravatar.cc/40?u=${user.uid}`} alt="User avatar" className="w-8 h-8 rounded-full" />
+                </button>
+                {isUserMenuOpen && userDropdownContent}
+              </div>
+            )}
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-md text-brand-text-secondary hover:text-white hover:bg-brand-gray focus:outline-none focus:ring-2 focus:ring-inset focus:ring-brand-teal"
@@ -169,8 +186,8 @@ const Header: React.FC<HeaderProps> = ({ user, onSignIn, onSignOut, onSearchClic
                   </button>
                 </div>
               ) : (
-                <button onClick={() => { onSignIn(); setIsMenuOpen(false); }} className="w-full flex items-center justify-center p-2 rounded-md text-white bg-brand-gray hover:bg-brand-light-gray transition-colors">
-                  <GoogleIcon /> <span className="ml-2">Sign In with Google</span>
+                <button onClick={() => { onAuthClick(); setIsMenuOpen(false); }} className="w-full flex items-center justify-center p-2 rounded-md text-white bg-brand-gray hover:bg-brand-light-gray transition-colors">
+                  <span>Sign In / Sign Up</span>
                 </button>
               )}
             </div>

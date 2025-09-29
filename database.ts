@@ -1,5 +1,7 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+// FIX: Switched to Firebase v8 compat imports to fix "no exported member" errors.
+// FIX: Switched to Firebase v8 compat imports to resolve errors with firebase.apps, firebase.initializeApp and firebase.auth.
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
 
 // Firebase configuration
 const firebaseConfig = {
@@ -13,6 +15,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const googleProvider = new GoogleAuthProvider();
+// FIX: Updated initialization to v8 syntax.
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+export const auth = firebase.auth();

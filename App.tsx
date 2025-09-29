@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { auth, googleProvider } from './database';
-import { onAuthStateChanged, signInWithPopup, signOut, User } from 'firebase/auth';
-import { supabase } from './lib/supabase';
+import { auth } from './database';
+// Import the full firebase namespace to access auth persistence types.
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
 
 import Header from './components/Header';
 import Hero from './components/Hero';
@@ -20,6 +21,7 @@ import DigitalArchives from './components/DigitalArchives';
 import LocalServices from './components/LocalServices';
 import ProfileModal from './components/ProfileModal';
 import { SpinnerIcon } from './components/Icons';
+import EmailAuthModal from './components/EmailAuthModal';
 
 export type Page =
   | 'home'
@@ -30,91 +32,110 @@ export type Page =
   | 'digital-archives'
   | 'local-services';
 
-interface UserProfile {
-    id: string;
-    full_name: string;
-    email: string;
-}
-
 const App: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('home');
   
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [user, setUser] = useState<firebase.User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
-      if (currentUser) {
-        setUser(currentUser);
-        // Check for profile in Supabase
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', currentUser.uid)
-          .single();
-        
-        if (error && error.code !== 'PGRST116') { // PGRST116: no rows found
-          console.error('Error fetching profile:', error);
-        }
-
-        if (profile) {
-          setUserProfile(profile);
-          setIsProfileModalOpen(false);
-        } else {
-          // New user, open profile modal
-          setIsProfileModalOpen(true);
-        }
-      } else {
-        setUser(null);
-        setUserProfile(null);
+    // This function sets up auth persistence and listeners.
+    const initializeAuth = async () => {
+      try {
+        // Set persistence to 'none' (in-memory) to support environments where web storage is not available.
+        // This avoids the 'auth/invalid-persistence-type' error by using the explicit string value.
+        await auth.setPersistence('none');
+      } catch (error) {
+          console.error("Firebase Auth: Could not set persistence.", error);
       }
-      setLoading(false);
-    });
 
-    return () => unsubscribe();
+      // The onAuthStateChanged listener is now attached after persistence is set.
+      return auth.onAuthStateChanged(async (currentUser) => {
+        setLoading(true);
+        if (currentUser) {
+          setUser(currentUser);
+          // If user exists but has no display name, prompt them to set one.
+          if (!currentUser.displayName) {
+            setIsProfileModalOpen(true);
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
+    };
+
+    const unsubscribePromise = initializeAuth();
+
+    // The cleanup function handles the promise returned by our async setup function.
+    return () => {
+      unsubscribePromise.then(unsubscribe => {
+        if (unsubscribe) {
+          unsubscribe();
+        }
+      });
+    };
   }, []);
 
   const handleOpenSearch = () => setIsSearchOpen(true);
   const handleCloseSearch = () => setIsSearchOpen(false);
+  const handleOpenAuth = () => setIsAuthModalOpen(true);
+  const handleCloseAuth = () => setIsAuthModalOpen(false);
   
-  const handleGoogleSignIn = async () => {
-      try {
-          await signInWithPopup(auth, googleProvider);
-      } catch (error) {
-          console.error("Google Sign-In Error:", error);
-      }
+  const handleSignUp = async (name: string, email: string, password: string) => {
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        if (userCredential.user) {
+            await userCredential.user.updateProfile({
+                displayName: name,
+            });
+            // The onAuthStateChanged listener will handle the rest of the logic,
+            // including setting the user state and closing the auth modal.
+        }
+    } catch (error) {
+        console.error("Sign-Up Error:", error);
+        throw error; // Re-throw to be caught in the modal
+    }
+  };
+
+  const handleSignIn = async (email: string, password: string) => {
+     try {
+        await auth.signInWithEmailAndPassword(email, password);
+        // onAuthStateChanged will handle UI updates
+     } catch (error) {
+        console.error("Sign-In Error:", error);
+        throw error; // Re-throw to be caught in the modal
+     }
   };
 
   const handleSignOut = async () => {
       try {
-          await signOut(auth);
+          await auth.signOut();
           setCurrentPage('home');
       } catch (error) {
           console.error("Sign-Out Error:", error);
       }
   };
   
-  const handleSaveProfile = async (name: string, email: string) => {
+  const handleSaveProfile = async (name: string) => {
     if (!user) return;
     setIsSavingProfile(true);
-    const { data, error } = await supabase
-      .from('profiles')
-      .upsert({ id: user.uid, full_name: name, email: email }, { onConflict: 'id' })
-      .select()
-      .single();
-
-    if (error) {
-      console.error('Error saving profile:', error);
-    } else {
-      setUserProfile(data as UserProfile);
-      setIsProfileModalOpen(false);
+    try {
+        await user.updateProfile({ displayName: name });
+        // Update state with the latest from Firebase auth to reflect the change.
+        setUser(auth.currentUser);
+        setIsProfileModalOpen(false);
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        // You could set an error state here to show in the modal.
+    } finally {
+        setIsSavingProfile(false);
     }
-    setIsSavingProfile(false);
   };
 
   const navigateTo = (page: Page) => {
@@ -136,7 +157,7 @@ const App: React.FC = () => {
       <div className="relative z-10">
         <Header
           user={user}
-          onSignIn={handleGoogleSignIn}
+          onAuthClick={handleOpenAuth}
           onSignOut={handleSignOut}
           onSearchClick={handleOpenSearch}
           onNavigate={navigateTo}
@@ -144,7 +165,7 @@ const App: React.FC = () => {
         />
         <main>
           {!user ? (
-             <Hero onSignIn={handleGoogleSignIn} />
+             <Hero onAuthClick={handleOpenAuth} />
           ) : (
             <>
               {currentPage === 'home' && (
@@ -170,9 +191,15 @@ const App: React.FC = () => {
       {user && <SearchModal isOpen={isSearchOpen} onClose={handleCloseSearch} />}
       <ProfileModal
         isOpen={isProfileModalOpen}
-        onClose={() => { if(userProfile) setIsProfileModalOpen(false) }}
+        onClose={() => { if (user?.displayName) setIsProfileModalOpen(false) }}
         onSave={handleSaveProfile}
         isSaving={isSavingProfile}
+      />
+      <EmailAuthModal
+        isOpen={isAuthModalOpen}
+        onClose={handleCloseAuth}
+        onSignUp={handleSignUp}
+        onSignIn={handleSignIn}
       />
     </div>
   );

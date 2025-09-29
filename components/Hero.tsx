@@ -1,20 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Counter from './Counter';
-import { GoogleIcon } from './Icons';
-import type { User } from 'firebase/auth';
+// FIX: Updated Firebase import for v8 compatibility to correctly reference the User type.
+// FIX: Switched to Firebase v8 compat import to resolve type error for firebase.User.
+import type firebase from 'firebase/compat/app';
 
 interface HeroProps {
-  onSignIn?: () => void;
-  user?: User | null;
+  onAuthClick?: () => void;
+  user?: firebase.User | null;
 }
 
-const Hero: React.FC<HeroProps> = ({ onSignIn, user }) => {
+const sikkimQuotes = [
+  "Sikkim is a land of majestic mountains, vibrant monasteries, and a culture steeped in tradition.",
+  "Where every glance is a painting, and every step is a pilgrimage into the heart of the Himalayas.",
+  "Discover a mystical world where ancient chants echo through verdant valleys.",
+  "The jewel of the Himalayas, offering a symphony of nature, spirituality, and adventure."
+];
+
+const Hero: React.FC<HeroProps> = ({ onAuthClick, user }) => {
   const stats = [
     { label: 'Active Monasteries', value: 108 },
     { label: 'Annual Cultural Events', value: 52 },
     { label: 'Documented Trek Routes', value: 35 },
     { label: 'Digitized Archival Items', value: 15621 },
   ];
+
+  const [quoteIndex, setQuoteIndex] = useState(0);
+  const [isFading, setIsFading] = useState(false);
+
+  useEffect(() => {
+    if (!user) { // Only run the quote animation if the user is logged out
+      const intervalId = setInterval(() => {
+        setIsFading(true);
+        setTimeout(() => {
+          setQuoteIndex((prevIndex) => (prevIndex + 1) % sikkimQuotes.length);
+          setIsFading(false);
+        }, 500); // Corresponds to the fade duration
+      }, 6000); // Change quote every 6 seconds
+
+      return () => clearInterval(intervalId);
+    }
+  }, [user]);
 
   return (
     <div
@@ -27,17 +52,16 @@ const Hero: React.FC<HeroProps> = ({ onSignIn, user }) => {
           Discover Sikkim's<br/>
           <span className="text-brand-teal">Digital Future</span>
         </h1>
-        <p className="mt-6 max-w-3xl mx-auto text-lg md:text-xl text-brand-text-secondary">
+        <p className={`mt-6 max-w-3xl mx-auto text-lg md:text-xl text-brand-text-secondary transition-opacity duration-500 ease-in-out ${isFading && !user ? 'opacity-0' : 'opacity-100'}`}>
           { user 
             ? `Welcome back, ${user.displayName || 'Explorer'}! Continue your journey into the heart of Sikkim.` 
-            : 'Experience the mystical beauty of Sikkim through cutting-edge technology. Virtual tours, interactive maps, and AI-powered guides await your exploration.'
+            : sikkimQuotes[quoteIndex]
           }
         </p>
-        {!user && onSignIn && (
+        {!user && onAuthClick && (
             <div className="mt-10">
-                <button onClick={onSignIn} className="inline-flex items-center space-x-3 px-8 py-4 text-lg font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105">
-                    <GoogleIcon />
-                    <span>Sign In to Explore</span>
+                <button onClick={onAuthClick} className="inline-flex items-center space-x-3 px-8 py-4 text-lg font-semibold bg-brand-teal text-brand-dark rounded-md hover:bg-brand-teal-dark transition-transform duration-200 transform hover:scale-105">
+                    <span>Sign Up to Explore</span>
                 </button>
             </div>
         )}

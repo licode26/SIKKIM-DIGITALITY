@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { GoogleGenAI, Type } from "@google/genai";
 import { SparklesIcon, SpinnerIcon, MapIcon, MapPinIcon, CrosshairIcon } from './Icons';
@@ -263,7 +264,8 @@ const InteractiveMap: React.FC = () => {
                                     height="75"
                                     style={{ pointerEvents: 'none' }}
                                 >
-                                    <div xmlns="http://www.w3.org/1999/xhtml" 
+                                    {/* FIX: Removed xmlns attribute to resolve TypeScript error. It's not required for rendering in modern browsers. */}
+                                    <div
                                          className="bg-brand-dark p-2 rounded-md shadow-lg border border-brand-light-gray/50 text-xs animate-fade-in">
                                         <h4 className="font-bold text-white mb-1 truncate">{activeWaypoint.name}</h4>
                                         <p className="text-brand-text-secondary leading-snug" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
